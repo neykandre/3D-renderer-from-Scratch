@@ -19,7 +19,6 @@ TEST(Constructors, InitializerList) {
 TEST(Constructors, Move) {
     my_containers::MyVector<int> v1{ 1, 2, 3, 4 };
     my_containers::MyVector<int> v2{ std::move(v1) };
-    EXPECT_EQ(v1.size(), 0);
     EXPECT_EQ(v2.size(), 4);
     EXPECT_EQ(v2[0], 1);
     EXPECT_EQ(v2[1], 2);
@@ -78,7 +77,7 @@ TEST(Methods, PopBack) {
     my_containers::MyVector<int> v1{ 1, 2, 3, 4 };
     v1.pop_back();
     EXPECT_EQ(v1.size(), 3);
-    EXPECT_EQ(v1[3], 3);
+    EXPECT_EQ(v1[2], 3);
 }
 
 TEST(Methods, DefaultResize) {

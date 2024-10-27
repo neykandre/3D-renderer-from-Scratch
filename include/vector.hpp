@@ -7,6 +7,12 @@ template <typename T>
     requires std::is_copy_assignable_v<T> && std::is_copy_constructible_v<T>
 class MyVector {
   public:
+
+    friend void swap(MyVector& first, MyVector& second) noexcept {
+        std::swap(first.m_Data_begin, second.m_Data_begin);
+        std::swap(first.m_Data_end, second.m_Data_end);
+        std::swap(first.m_Storage_end, second.m_Storage_end);
+    }
     class iterator {
       public:
         using iterator_category = std::random_access_iterator_tag;
@@ -115,10 +121,8 @@ class MyVector {
         std::copy(other.begin(), other.end(), m_Data_begin);
     }
 
-    MyVector(MyVector&& other) noexcept
-        : m_Data_begin{ other.m_Data_begin },
-          m_Data_end{ other.m_Data_end },
-          m_Storage_end{ other.m_Storage_end } {
+    MyVector(MyVector&& other) noexcept : MyVector() {
+        swap(*this, other);
     }
 
     MyVector(std::initializer_list<T> init) noexcept
@@ -127,7 +131,7 @@ class MyVector {
     }
 
     MyVector& operator=(MyVector other) noexcept {
-        std::swap(*this, other);
+        swap(*this, other);
         return *this;
     }
 
