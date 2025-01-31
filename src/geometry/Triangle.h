@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../core/matrix.h"
-#include "../core/vector.h"
+#include "../core/Matrix.h"
+#include "../core/Vector.h"
 #include <array>
 
 namespace renderer {
