@@ -10,7 +10,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(eigen)
 add_subdirectory(SFML)
 
-file(GLOB_RECURSE SOURCES src/*.cpp)
+file(GLOB_RECURSE SOURCES src/core/*.cpp src/geometry/*.cpp src/rendering/*.cpp src/world/*.cpp src/main.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

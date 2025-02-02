@@ -3,7 +3,7 @@
 
 namespace renderer {
 
-FrameBuffer::FrameBuffer(int width, int height)
+FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
     : m_width(width),
       m_height(height),
       m_colorBuffer(width * height, Vector3{ 0, 0, 0 }) {
@@ -26,11 +26,11 @@ Vector3 FrameBuffer::getPixel(int x, int y) const {
     return m_colorBuffer[y * m_width + x];
 }
 
-int FrameBuffer::getWidth() const {
+unsigned int FrameBuffer::getWidth() const {
     return m_width;
 }
 
-int FrameBuffer::getHeight() const {
+unsigned int FrameBuffer::getHeight() const {
     return m_height;
 }
 

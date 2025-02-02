@@ -11,7 +11,7 @@ class World {
     World() = default;
 
     void addObject(std::unique_ptr<Object>);
-    const ObjectsArray& getObjects() const;
+    ObjectsArray& getObjects();
 
   private:
     ObjectsArray m_objects;

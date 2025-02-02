@@ -6,7 +6,7 @@
 namespace renderer {
 class Camera {
   public:
-    Camera(const Vector3& position, float fov, float aspect, float near, float far);
+    Camera(const Vector3& position, float fov, float aspect, float near);
 
     void moveForward(float);
     void moveBackward(float);
@@ -17,9 +17,7 @@ class Camera {
     Matrix4 getProjectionMatrix() const;
     Matrix4 getViewMatrix() const;
 
-    Vector3 getPosition() const {
-        return m_position;
-    }
+    Vector3 getPosition() const;
 
   private:
     Vector3 m_position;
@@ -33,7 +31,6 @@ class Camera {
     float m_fov;
     float m_aspect;
     float m_near;
-    float m_far;
 
     void updateCameraVectors();
 };

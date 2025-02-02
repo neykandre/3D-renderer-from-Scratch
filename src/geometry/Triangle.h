@@ -11,6 +11,7 @@ class Triangle {
 
     Triangle(const Vector3& v1, const Vector3& v2, const Vector3& v3,
              const Vector3& n);
+    Triangle(Vector4 v1, Vector4 v2, Vector4 v3, Vector4 n);
 
     void transform(const Matrix4&);
     const VerticesArray& getVertices() const;

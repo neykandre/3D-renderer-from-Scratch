@@ -14,7 +14,7 @@ const Matrix4& Object::getTransform() const {
 }
 
 void Object::applyTransform(const Matrix4& transform) {
-    m_transform *= transform;
+    m_transform = transform * m_transform;
 }
 
 const Mesh& Object::getRawMesh() const {

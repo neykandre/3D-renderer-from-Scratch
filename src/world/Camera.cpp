@@ -5,13 +5,11 @@
 
 namespace renderer {
 
-Camera::Camera(const Vector3& position, float fov, float aspect, float near,
-               float far)
+Camera::Camera(const Vector3& position, float fov, float aspect, float near)
     : m_position(position),
       m_fov(fov),
       m_aspect(aspect),
       m_near(near),
-      m_far(far),
       m_yaw(-90.0f),
       m_pitch(0.0f),
       m_up(0, 1, 0) {
@@ -73,13 +71,19 @@ Matrix4 Camera::getViewMatrix() const {
 }
 
 Matrix4 Camera::getProjectionMatrix() const {
-    float tanHalfFov   = std::tan(m_fov / 2.0f);
+    float right = m_near * std::tan(m_fov / 2.0f);
+    float left = -right;
+    float top = right / m_aspect;
+    float bottom = -top;
+
     Matrix4 projection = Matrix4::Zero();
 
-    projection(0, 0) = 1.0f / (m_aspect * tanHalfFov);
-    projection(1, 1) = 1.0f / tanHalfFov;
-    projection(2, 2) = -(m_far + m_near) / (m_far - m_near);
-    projection(2, 3) = -(2.0f * m_far * m_near) / (m_far - m_near);
+    projection(0, 0) = (2.0f * m_near) / (right - left);
+    projection(0, 2) = (right + left) / (right - left);
+    projection(1, 1) = (2.0f * m_near) / (top - bottom);
+    projection(1, 2) = (top + bottom) / (top - bottom);
+    projection(2, 2) = -1.0f;
+    projection(2, 3) = -2.0f * m_near;
     projection(3, 2) = -1.0f;
 
     return projection;
