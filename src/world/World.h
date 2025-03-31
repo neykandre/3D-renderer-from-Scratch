@@ -1,19 +1,18 @@
 #pragma once
 
 #include "Object.h"
-#include <memory>
 
 namespace renderer {
+
 class World {
   public:
-    using ObjectsArray = std::vector<std::unique_ptr<Object>>;
-
     World() = default;
 
-    void addObject(std::unique_ptr<Object>);
-    ObjectsArray& getObjects();
+    void addObject(Object object);
+    const std::vector<Object>& getObjects() const;
 
   private:
-    ObjectsArray m_objects;
+    std::vector<Object> m_objects;
 };
+
 } // namespace renderer
