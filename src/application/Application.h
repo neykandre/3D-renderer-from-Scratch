@@ -1,4 +1,5 @@
 #pragma once
+#include "../world/World.h"
 
 namespace renderer {
 
@@ -7,6 +8,7 @@ class Application {
     void run();
 
   private:
+    World m_world;
 };
 
 } // namespace renderer

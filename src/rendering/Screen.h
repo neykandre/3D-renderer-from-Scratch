@@ -4,21 +4,24 @@
 #include <vector>
 
 namespace renderer {
+enum Width : int;
+enum Height : int;
 
 class Screen {
   public:
-    Screen(unsigned int width, unsigned int height);
+    Screen(Width width, Height height);
 
-    void clear(const Vector3& clearColor);
+    void fillWithColor(const Vector3& fillColor);
     void setPixel(int x, int y, const Vector3& color);
     Vector3 getPixel(int x, int y) const;
 
-    unsigned int getWidth() const;
-    unsigned int getHeight() const;
+    Width getWidth() const;
+    Height getHeight() const;
 
   private:
-    unsigned int m_width, m_height;
-    std::vector<Vector3> m_colorBuffer;
+    Width m_width;
+    Height m_height;
+    std::vector<std::uint8_t> m_colorBuffer;
 };
 
 } // namespace renderer

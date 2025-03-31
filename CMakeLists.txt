@@ -20,6 +20,7 @@ add_executable(${PROJECT_NAME}
         src/application/Application.cpp
         src/geometry/Triangle.cpp
         src/world/Object.cpp
+        src/world/World.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System eigen)
