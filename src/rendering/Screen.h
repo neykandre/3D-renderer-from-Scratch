@@ -1,13 +1,13 @@
 #pragma once
 
-#include "../core/Vector.h"
+#include "../core/Linalg.h"
 #include <vector>
 
 namespace renderer {
 
-class FrameBuffer {
+class Screen {
   public:
-    FrameBuffer(unsigned int width, unsigned int height);
+    Screen(unsigned int width, unsigned int height);
 
     void clear(const Vector3& clearColor);
     void setPixel(int x, int y, const Vector3& color);

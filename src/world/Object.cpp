@@ -1,29 +1,24 @@
 #include "Object.h"
 
 namespace renderer {
-Object::Object(std::unique_ptr<Mesh> mesh)
-    : m_mesh{ std::move(mesh) },
-      m_transform{ Matrix4::Identity() } {};
-
-void Object::setTransform(Matrix4 transform) {
-    m_transform = std::move(transform);
+Object::Object()
+    : m_modelMatrix(IdentityMatrix4) {
 }
 
-const Matrix4& Object::getTransform() const {
-    return m_transform;
+void Object::addTriangle(const Triangle& triangle) {
+    m_triangles.push_back(triangle);
 }
 
-void Object::applyTransform(const Matrix4& transform) {
-    m_transform = transform * m_transform;
+const std::vector<Triangle>& Object::getTriangles() const {
+    return m_triangles;
 }
 
-const Mesh& Object::getRawMesh() const {
-    return *m_mesh;
+void Object::setModelMatrix(const Matrix4& matrix) {
+    m_modelMatrix = matrix;
 }
 
-Mesh Object::getTransformedMesh() const {
-    Mesh transformedMesh = *m_mesh;
-    transformedMesh.transform(m_transform);
-    return transformedMesh;
+const Matrix4& Object::getModelMatrix() const {
+    return m_modelMatrix;
 }
+
 } // namespace renderer

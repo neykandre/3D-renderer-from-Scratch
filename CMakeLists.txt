@@ -3,16 +3,23 @@ project(3d-renderer)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-rtti")
+
+if (MSVC)
+    add_compile_options(/W4 /GR-)
+else ()
+    add_compile_options(-Wall -Wextra -Wpedantic -fno-rtti)
+endif ()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(eigen)
 add_subdirectory(SFML)
 
-file(GLOB_RECURSE SOURCES src/core/*.cpp src/geometry/*.cpp src/rendering/*.cpp src/world/*.cpp src/main.cpp)
+add_executable(${PROJECT_NAME}
+        src/main.cpp
+        src/application/Application.cpp
+        src/geometry/Triangle.cpp
+        src/world/Object.cpp
+)
 
-add_executable(${PROJECT_NAME} ${SOURCES})
-
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_20)
-target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics eigen)
+target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System eigen)

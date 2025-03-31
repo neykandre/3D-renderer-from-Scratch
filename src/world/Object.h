@@ -1,22 +1,23 @@
 #pragma once
 
-#include "../geometry/Mesh.h"
-#include <memory>
+#include "../core/Linalg.h"
+#include "../geometry/Triangle.h"
 
 namespace renderer {
+
 class Object {
   public:
-    explicit Object(std::unique_ptr<Mesh>);
+    Object();
 
-    void setTransform(Matrix4);
-    const Matrix4& getTransform() const;
-    void applyTransform(const Matrix4&);
+    void addTriangle(const Triangle& triangle);
+    const std::vector<Triangle>& getTriangles() const;
 
-    const Mesh& getRawMesh() const;
-    Mesh getTransformedMesh() const;
+    void setModelMatrix(const Matrix4& matrix);
+    const Matrix4& getModelMatrix() const;
 
   private:
-    std::unique_ptr<Mesh> m_mesh;
-    Matrix4 m_transform;
+    std::vector<Triangle> m_triangles;
+    Matrix4 m_modelMatrix;
 };
+
 } // namespace renderer
