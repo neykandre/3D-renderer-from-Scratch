@@ -19,6 +19,9 @@ class Screen {
     Height getHeight() const;
 
     const std::vector<std::uint8_t>& getColorBuffer() const;
+    inline float& getZBufferElem(int x, int y) {
+        return m_zBuffer[y * m_width + x];
+    };
 
   private:
     Width m_width;
@@ -28,9 +31,6 @@ class Screen {
 
     inline std::uint8_t& getColorBufferElem(int x, int y, int i) {
         return m_colorBuffer[(y * m_width + x) * 4 + i];
-    };
-    inline float& getZBufferElem(int x, int y) {
-        return m_zBuffer[y * m_width + x];
     };
 };
 } // namespace renderer

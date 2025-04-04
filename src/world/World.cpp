@@ -9,8 +9,8 @@ void World::addDirectionalLight(DirectionalLight light) {
     m_directionalLights.emplace_back(std::move(light));
 }
 
-void World::setAmbientLight(AmbientLight light) {
-    m_ambientLight = std::move(light);
+void World::setAmbientLight(const AmbientLight& light) {
+    m_ambientLight = light;
 }
 
 const std::vector<DirectionalLight>& World::getDirectionalLights() const {

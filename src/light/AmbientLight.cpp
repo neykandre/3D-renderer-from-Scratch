@@ -5,6 +5,11 @@ AmbientLight::AmbientLight(const Vector3& intensity)
     : m_intensity(intensity) {
 }
 
+AmbientLight& AmbientLight::operator=(const AmbientLight& other) {
+    m_intensity = other.m_intensity;
+    return *this;
+}
+
 void AmbientLight::setIntensity(const Vector3& intensity) {
     m_intensity = intensity;
 }

@@ -1,5 +1,4 @@
 #include "Screen.h"
-#include <cassert>
 
 namespace renderer {
 Screen::Screen(Width width, Height height)

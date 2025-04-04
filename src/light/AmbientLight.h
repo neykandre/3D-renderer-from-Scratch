@@ -2,11 +2,13 @@
 #include "../core/Linalg.h"
 
 namespace renderer {
-constexpr Vector3 kDefaultAmbientIntensity{ 0.2f, 0.2f, 0.2f };
 class AmbientLight {
+    const Vector3 kDefaultAmbientIntensity{ 0.2f, 0.2f, 0.2f };
+
   public:
     AmbientLight() = default;
     explicit AmbientLight(const Vector3& intensity);
+    AmbientLight& operator=(const AmbientLight& other);
 
     void setIntensity(const Vector3& intensity);
 

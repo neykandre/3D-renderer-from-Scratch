@@ -9,9 +9,9 @@ Application::Application(Width width, Height height, const std::string& title)
       m_sprite(m_texture),
       m_screen(width, height) {
 
-    Vertex v0 = { { -10.0f, -10.0f, 0.5f }, { 0.0f, 0.0f, -1.0f } };
-    Vertex v1 = { { 10.0f, -10.0f, 0.5f }, { 0.0f, 0.0f, -1.0f } };
-    Vertex v2 = { { 10.0f, 10.0f, 0.5f }, { 0.0f, 0.0f, -1.0f } };
+    Vertex v0 = { Vector3{ -10.0f, -10.0f, 0.5f }, Vector3{ 0.0f, 0.0f, -1.0f } };
+    Vertex v1 = { Vector3{ 10.0f, -10.0f, 0.5f }, Vector3{ 0.0f, 0.0f, -1.0f } };
+    Vertex v2 = { Vector3{ 10.0f, 10.0f, 0.5f }, Vector3{ 0.0f, 0.0f, -1.0f } };
 
     Object o0;
     o0.addTriangle({ v0, v1, v2 });

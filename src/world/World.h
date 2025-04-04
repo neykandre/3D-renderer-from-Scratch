@@ -11,7 +11,7 @@ class World {
 
     void addObject(Object object);
     void addDirectionalLight(DirectionalLight light);
-    void setAmbientLight(AmbientLight light);
+    void setAmbientLight(const AmbientLight& light);
 
     const std::vector<Object>& getObjects() const;
     const std::vector<DirectionalLight>& getDirectionalLights() const;

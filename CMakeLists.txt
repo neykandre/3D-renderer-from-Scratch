@@ -25,6 +25,8 @@ add_executable(${PROJECT_NAME}
         src/rendering/Screen.cpp
         src/light/AmbientLight.cpp
         src/light/DirectionalLight.cpp
+        src/world/Camera.cpp
+        src/geometry/Vertex.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System eigen)
