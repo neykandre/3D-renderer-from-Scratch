@@ -4,12 +4,11 @@
 #include "../geometry/Triangle.h"
 
 namespace renderer {
-
 class Object {
   public:
     Object();
 
-    void addTriangle(const Triangle& triangle);
+    void addTriangle(Triangle triangle);
     const std::vector<Triangle>& getTriangles() const;
 
     void setModelMatrix(const Matrix4& matrix);
@@ -19,5 +18,4 @@ class Object {
     std::vector<Triangle> m_triangles;
     Matrix4 m_modelMatrix;
 };
-
 } // namespace renderer

@@ -2,29 +2,20 @@
 
 #include "../world/Camera.h"
 #include "../world/World.h"
-#include "FrameBuffer.h"
+#include "Screen.h"
 
 namespace renderer {
-
 class Renderer {
   public:
-    Renderer(unsigned int width, unsigned int height);
-
-    void render(World&, const Camera&);
-    void clear();
-
-    const FrameBuffer& getFrameBuffer() const;
+    Screen render(const World& world, const Camera& camera, Screen&& screen);
 
   private:
-    void rasterizeTriangle(const Triangle&);
-    void sortVertices(Vector4& v0, Vector4& v1, Vector4& v2) const;
+    void rasterizeTriangle(const std::array<Vector4, 3>& points,
+                           const std::array<Vector4, 3>& normals,
+                           const AmbientLight& ambientLight,
+                           const std::vector<DirectionalLight>& directionalLights,
+                           Screen& screen);
 
-    bool isInsideClipSpace(const Vector4&) const;
-    std::vector<Triangle> clipTriangle(const Triangle&) const;
-
-    FrameBuffer m_framebuffer;
-    unsigned int m_width;
-    unsigned int m_height;
+    Vector3 toScreenTransform(const Vector4& point);
 };
-
 } // namespace renderer

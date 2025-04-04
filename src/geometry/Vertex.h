@@ -3,10 +3,8 @@
 #include "../core/Linalg.h"
 
 namespace renderer {
-
 struct Vertex {
-    Vector4 position;
-    Vector4 normal;
+    Vector3 position;
+    Vector3 normal; // TODO normalize (create constructor)
 };
-
 } // namespace renderer

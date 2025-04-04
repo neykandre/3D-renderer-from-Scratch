@@ -5,6 +5,22 @@ void World::addObject(Object object) {
     m_objects.emplace_back(std::move(object));
 }
 
+void World::addDirectionalLight(DirectionalLight light) {
+    m_directionalLights.emplace_back(std::move(light));
+}
+
+void World::setAmbientLight(AmbientLight light) {
+    m_ambientLight = std::move(light);
+}
+
+const std::vector<DirectionalLight>& World::getDirectionalLights() const {
+    return m_directionalLights;
+}
+
+const AmbientLight& World::getAmbientLight() const {
+    return m_ambientLight;
+}
+
 const std::vector<Object>& World::getObjects() const {
     return m_objects;
 }

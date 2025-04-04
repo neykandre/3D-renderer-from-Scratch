@@ -2,36 +2,43 @@
 #include <cassert>
 
 namespace renderer {
-
-Screen::Screen(unsigned int width, unsigned int height)
+Screen::Screen(Width width, Height height)
     : m_width(width),
       m_height(height),
-      m_colorBuffer(width * height, Vector3{ 0, 0, 0 }) {
+      m_colorBuffer(width * height * 4),
+      m_zBuffer(width * height) {
 }
 
-void Screen::clear(const Vector3& clearColor) {
-    std::fill(m_colorBuffer.begin(), m_colorBuffer.end(), clearColor);
+void Screen::fillWithColor(const sf::Color& fillColor) {
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            setPixel(x, y, 0, fillColor);
+        }
+    }
+    std::ranges::fill(m_zBuffer, 1.0f);
 }
 
-void Screen::setPixel(int x, int y, const Vector3& color) {
-    assert(x >= 0 && x < m_width && y >= 0 && y < m_height &&
-           "(x, y) is outside bounds of Screen");
-    int index            = y * m_width + x;
-    m_colorBuffer[index] = color;
+void Screen::setPixel(int x, int y, float depth, const sf::Color& color) {
+    if (depth > getZBufferElem(x, y)) {
+        return;
+    }
+
+    getColorBufferElem(x, y, 0) = color.r;
+    getColorBufferElem(x, y, 1) = color.g;
+    getColorBufferElem(x, y, 2) = color.b;
+    getColorBufferElem(x, y, 3) = color.a;
+    getZBufferElem(x, y)        = depth;
 }
 
-Vector3 Screen::getPixel(int x, int y) const {
-    assert(x >= 0 && x < m_width && y >= 0 && y < m_height &&
-           "(x, y) is outside bounds of Screen");
-    return m_colorBuffer[y * m_width + x];
+const std::vector<std::uint8_t>& Screen::getColorBuffer() const {
+    return m_colorBuffer;
 }
 
-unsigned int Screen::getWidth() const {
+Width Screen::getWidth() const {
     return m_width;
 }
 
-unsigned int Screen::getHeight() const {
+Height Screen::getHeight() const {
     return m_height;
 }
-
 } // namespace renderer
