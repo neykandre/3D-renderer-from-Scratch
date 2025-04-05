@@ -80,12 +80,16 @@ void Renderer::rasterizeTriangle(
             if (alpha >= 0 && beta >= 0 && gamma >= 0) {
                 float z = alpha * p0.z() + beta * p1.z() + gamma * p2.z();
                 if (z < screen.getZBufferElem(x, y)) {
-                    sf::Color color; // TODO Phong
-                    color.r = ambientLight.getIntensity().x() * 255;
-                    color.g = ambientLight.getIntensity().y() * 255;
-                    color.b = ambientLight.getIntensity().z() * 255;
-                    color.a = 255;
-                    screen.setPixel(x, y, z, color);
+                    if (alpha < 0.01f || beta < 0.01f || gamma < 0.01f) {
+                        sf::Color color; // TODO Phong
+                        color.r = ambientLight.getIntensity().x() * 255;
+                        color.g = ambientLight.getIntensity().y() * 255;
+                        color.b = ambientLight.getIntensity().z() * 255;
+                        color.a = 255;
+                        screen.setPixel(x, y, z, color);
+                    } else {
+                        screen.setPixel(x, y, z, sf::Color::Black);
+                    }
                 }
             }
         }

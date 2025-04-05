@@ -13,6 +13,10 @@ class Application {
     void run();
 
   private:
+    Object CreateCube();
+
+    void update(float time);
+
     World m_world;
     Renderer m_renderer;
     Screen m_screen;
