@@ -15,7 +15,8 @@ class Application {
   private:
     Object CreateCube();
 
-    void update(float time);
+    void handleKeyboardInput(float time);
+    void handleMouseInput();
 
     World m_world;
     Renderer m_renderer;

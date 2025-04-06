@@ -11,9 +11,10 @@ Screen Renderer::render(const World& world, const Camera& camera, Screen&& scree
             light.getIntensity(), camera.getViewMatrix() * light.getDirection());
     }
 
-    Matrix4 VP = project(camera.getNear(), camera.getFar(), camera.getFov(),
-                         screen.getWidth() / screen.getHeight()) *
-                 camera.getViewMatrix();
+    Matrix4 VP =
+        makeProjectionMatrix(camera.getNear(), camera.getFar(), camera.getFov(),
+                             screen.getWidth() / screen.getHeight()) *
+        camera.getViewMatrix();
 
     for (const Object& object : world.getObjects()) {
         Matrix4 MVP = VP * object.getModelMatrix();

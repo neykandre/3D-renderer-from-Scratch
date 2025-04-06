@@ -1,6 +1,9 @@
 #include "Application.h"
 
 namespace renderer {
+static constexpr float kDefaultMoveSpeed   = 2.5f;
+static constexpr float kDefaultSensitivity = 0.001f;
+
 Application::Application(Width width, Height height, const std::string& title)
     : m_window(sf::VideoMode(
                    { static_cast<unsigned>(width), static_cast<unsigned>(height) }),
@@ -9,24 +12,45 @@ Application::Application(Width width, Height height, const std::string& title)
       m_sprite(m_texture),
       m_screen(width, height) {
     auto cube = CreateCube();
-    // cube.setModelMatrix(rotate({ 0, 1, 0 }, 0.2f));
-    cube.setModelMatrix(rotate({ 1, 0, 0 }, 0.5f));
-    cube.setModelMatrix(rotate({ 0, 1, 0 }, 0.2f) * cube.getModelMatrix());
-    cube.setModelMatrix(translate({ -0.5, -1, 0 }) * cube.getModelMatrix());
+    cube.setModelMatrix(makeRotationMatrix({ 1, 0, 0 }, 0.5f));
+    cube.setModelMatrix(makeRotationMatrix({ 0, 1, 0 }, 0.2f) *
+                        cube.getModelMatrix());
+    cube.setModelMatrix(makeTranslationMatrix({ -0.5, -1, 0 }) *
+                        cube.getModelMatrix());
 
     m_world.addObject(std::move(cube));
 }
 
 void Application::run() {
     sf::Clock clock;
-    while (m_window.isOpen()) {
-        while (const std::optional event = m_window.pollEvent()) {
-            if (event->is<sf::Event::Closed>()) {
-                m_window.close();
-            }
-        }
+    bool isMouseHandling = false;
 
-        update(clock.restart().asSeconds());
+    const auto onClose = [this](const sf::Event::Closed&) {
+        m_window.close();
+    };
+    const auto onKeyPressed =
+        [this, &isMouseHandling](const sf::Event::KeyPressed& keyPressed) {
+            if (keyPressed.scancode == sf::Keyboard::Scancode::Escape) {
+                m_window.setMouseCursorVisible(true);
+                isMouseHandling = false;
+            }
+        };
+    const auto onMouseButtonPressed =
+        [this,
+         &isMouseHandling](const sf::Event::MouseButtonPressed& mouseButtonPressed) {
+            if (mouseButtonPressed.button == sf::Mouse::Button::Left) {
+                m_window.setMouseCursorVisible(false);
+                isMouseHandling = true;
+            }
+        };
+
+    while (m_window.isOpen()) {
+        m_window.handleEvents(onClose, onKeyPressed, onMouseButtonPressed);
+
+        handleKeyboardInput(clock.restart().asSeconds());
+        if (isMouseHandling) {
+            handleMouseInput();
+        }
 
         m_window.clear();
         m_screen = m_renderer.render(m_world, m_camera, std::move(m_screen));
@@ -37,28 +61,36 @@ void Application::run() {
     }
 }
 
-void Application::update(float time) {
-    Vector3 moveDir = { 0, 0, 0 };
-    Vector3 forward = { 0, 0, 1 };
-    Vector3 right   = { -1, 0, 0 };
+void Application::handleKeyboardInput(float time) {
+    float distance = kDefaultMoveSpeed * time;
+    if (isKeyPressed(sf::Keyboard::Scancode::W)) {
+        m_camera.moveForward(distance);
+    }
+    if (isKeyPressed(sf::Keyboard::Scancode::S)) {
+        m_camera.moveBack(distance);
+    }
+    if (isKeyPressed(sf::Keyboard::Scancode::A)) {
+        m_camera.moveLeft(distance);
+    }
+    if (isKeyPressed(sf::Keyboard::Scancode::D)) {
+        m_camera.moveRight(distance);
+    }
+}
 
-    if (isKeyPressed(sf::Keyboard::Key::W)) {
-        moveDir += forward;
+void Application::handleMouseInput() {
+    sf::Vector2i mouseCurrentPos = sf::Mouse::getPosition(m_window);
+    sf::Vector2i center{ static_cast<int>(m_window.getSize().x / 2),
+                         static_cast<int>(m_window.getSize().y / 2) };
+    sf::Vector2i delta = mouseCurrentPos - center;
+
+    if (delta.x != 0) {
+        m_camera.rotateHorizontal(delta.x * kDefaultSensitivity);
     }
-    if (isKeyPressed(sf::Keyboard::Key::S)) {
-        moveDir -= forward;
-    }
-    if (isKeyPressed(sf::Keyboard::Key::A)) {
-        moveDir -= right;
-    }
-    if (isKeyPressed(sf::Keyboard::Key::D)) {
-        moveDir += right;
+    if (delta.y != 0) {
+        m_camera.rotateVertical(delta.y * kDefaultSensitivity);
     }
 
-    if (moveDir.norm() > 1e-6f) {
-        moveDir.normalize();
-        m_camera.move(moveDir);
-    }
+    sf::Mouse::setPosition(center, m_window);
 }
 
 Object Application::CreateCube() {

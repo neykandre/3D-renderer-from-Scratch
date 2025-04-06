@@ -13,13 +13,13 @@ const Matrix4 kIdentityMatrix4 = Matrix4::Identity();
 const Matrix3 kZeroMatrix3     = Matrix3::Zero();
 const Matrix4 kZeroMatrix4     = Matrix4::Zero();
 
-inline Matrix4 translate(const Vector3& translation) {
+inline Matrix4 makeTranslationMatrix(const Vector3& translation) {
     Eigen::Affine3f transform = Eigen::Affine3f::Identity();
     transform.translate(translation);
     return transform.matrix();
 }
 
-inline Matrix4 rotate(const Vector3& axis, float angle) {
+inline Matrix4 makeRotationMatrix(const Vector3& axis, float angle) {
     Eigen::Affine3f transform = Eigen::Affine3f::Identity();
     transform.rotate(Eigen::AngleAxisf(angle, axis.normalized()));
     return transform.matrix();
@@ -46,7 +46,7 @@ struct Fov {
     }
 };
 
-inline Matrix4 project(Near near, Far far, Fov fov, float aspect) {
+inline Matrix4 makeProjectionMatrix(Near near, Far far, Fov fov, float aspect) {
     float top    = near.value * std::tan(fov.value / 2.f);
     float bottom = -top;
     float right  = top * aspect;

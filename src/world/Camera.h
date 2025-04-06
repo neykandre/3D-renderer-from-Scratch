@@ -4,10 +4,9 @@
 
 namespace renderer {
 class Camera {
-    static constexpr Near kDefaultNear   = Near{ 0.1f };
-    static constexpr Far kDefaultFar     = Far{ 100.f };
-    static constexpr Fov kDefaultFov     = Fov{ std::numbers::pi_v<float> / 3.f };
-    static constexpr float kDefaultSpeed = 0.05f;
+    static constexpr Near kDefaultNear = Near{ 0.1f };
+    static constexpr Far kDefaultFar   = Far{ 100.f };
+    static constexpr Fov kDefaultFov   = Fov{ std::numbers::pi_v<float> / 3.f };
 
   public:
     Camera() = default;
@@ -17,7 +16,12 @@ class Camera {
     Fov getFov() const;
     Matrix4 getViewMatrix() const;
 
-    void move(const Vector3& movDir);
+    void moveForward(float distance);
+    void moveBack(float distance);
+    void moveRight(float distance);
+    void moveLeft(float distance);
+    void rotateHorizontal(float angle);
+    void rotateVertical(float angle);
 
   private:
     Near m_near          = kDefaultNear;
