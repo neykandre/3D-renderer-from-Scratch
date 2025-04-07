@@ -1,9 +1,15 @@
 #include "application/Application.h"
+#include "exceptions/Except.h"
 
 int main() {
-    renderer::Application application(renderer::Width(1280), renderer::Height(720),
-                                      "3D Renderer");
-    application.run();
+    try {
+
+        renderer::Application application(renderer::Width(800),
+                                          renderer::Height(600), "3D Renderer");
+        application.run();
+    } catch (...) {
+        renderer::react();
+    }
 
     return 0;
 }

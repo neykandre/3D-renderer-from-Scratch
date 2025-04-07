@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "../loaders/ObjLoader.h"
 
 namespace renderer {
 static constexpr float kDefaultMoveSpeed   = 2.5f;
@@ -10,15 +11,14 @@ Application::Application(Width width, Height height, const std::string& title)
                title),
       m_texture({ static_cast<unsigned>(width), static_cast<unsigned>(height) }),
       m_sprite(m_texture),
-      m_screen(width, height) {
-    auto cube = CreateCube();
-    cube.setModelMatrix(makeRotationMatrix({ 1, 0, 0 }, 0.5f));
-    cube.setModelMatrix(makeRotationMatrix({ 0, 1, 0 }, 0.2f) *
-                        cube.getModelMatrix());
-    cube.setModelMatrix(makeTranslationMatrix({ -0.5, -1, 0 }) *
-                        cube.getModelMatrix());
+      m_screen(width, height),
+      m_moveSpeed(kDefaultMoveSpeed) {
 
-    m_world.addObject(std::move(cube));
+    ObjLoader objLoader;
+    auto objOpt = objLoader.load("Lowpoly_tree_sample.obj");
+    if (objOpt.has_value()) {
+        m_world.addObject(objOpt.value());
+    }
 }
 
 void Application::run() {
@@ -33,8 +33,15 @@ void Application::run() {
             if (keyPressed.scancode == sf::Keyboard::Scancode::Escape) {
                 m_window.setMouseCursorVisible(true);
                 isMouseHandling = false;
+            } else if (keyPressed.scancode == sf::Keyboard::Scancode::LShift) {
+                m_moveSpeed *= 5;
             }
         };
+    const auto onKeyReleased = [this](const sf::Event::KeyReleased& keyReleased) {
+        if (keyReleased.scancode == sf::Keyboard::Scancode::LShift) {
+            m_moveSpeed = kDefaultMoveSpeed;
+        }
+    };
     const auto onMouseButtonPressed =
         [this,
          &isMouseHandling](const sf::Event::MouseButtonPressed& mouseButtonPressed) {
@@ -45,7 +52,8 @@ void Application::run() {
         };
 
     while (m_window.isOpen()) {
-        m_window.handleEvents(onClose, onKeyPressed, onMouseButtonPressed);
+        m_window.handleEvents(onClose, onKeyPressed, onKeyReleased,
+                              onMouseButtonPressed);
 
         handleKeyboardInput(clock.restart().asSeconds());
         if (isMouseHandling) {
@@ -62,7 +70,7 @@ void Application::run() {
 }
 
 void Application::handleKeyboardInput(float time) {
-    float distance = kDefaultMoveSpeed * time;
+    float distance = m_moveSpeed * time;
     if (isKeyPressed(sf::Keyboard::Scancode::W)) {
         m_camera.moveForward(distance);
     }

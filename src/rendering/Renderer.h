@@ -17,17 +17,11 @@ class Renderer {
     std::vector<Vertex> ClipPolygonAgainstPlane(const std::vector<Vertex>& vertices,
                                                 const PlaneFunction& plane);
 
-    Vertex calcIntersection(const Vertex& v1, const Vertex& v2, float t);
-
-    std::vector<Triangle> TriangulatePolygon(const std::vector<Vertex>& vertices);
-
     void rasterizeTriangle(const Triangle& triangle,
                            const AmbientLight& ambientLight,
                            const std::vector<DirectionalLight>& directionalLights,
                            Screen& screen);
 
     Vector3 toNdcTransform(const Vector4& point);
-
-    float calcOrientedArea(const Vector3& p0, const Vector3& p1, const Vector3& p2);
 };
 } // namespace renderer

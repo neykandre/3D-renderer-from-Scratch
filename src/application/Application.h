@@ -25,5 +25,6 @@ class Application {
     sf::RenderWindow m_window;
     sf::Texture m_texture;
     sf::Sprite m_sprite;
+    float m_moveSpeed;
 };
 } // namespace renderer

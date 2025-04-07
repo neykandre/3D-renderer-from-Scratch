@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "../core/Utils.h"
 #include "Screen.h"
 
 namespace renderer {
@@ -20,8 +21,8 @@ Screen Renderer::render(const World& world, const Camera& camera, Screen&& scree
         Matrix4 MVP = VP * object.getModelMatrix();
         Matrix4 MV  = camera.getViewMatrix() * object.getModelMatrix();
         for (const Triangle& triangle : object.getTriangles()) {
-            std::array<Vector4, 3> points;
-            std::array<Vector4, 3> normals;
+            std::array<Vector4, 3> points{};
+            std::array<Vector4, 3> normals{};
             for (int i = 0; i < 3; i++) {
                 points[i]  = MVP * triangle.getVertices()[i].getPosition();
                 normals[i] = MV * triangle.getVertices()[i].getNormal();
@@ -102,12 +103,6 @@ Vector3 Renderer::toNdcTransform(const Vector4& point) {
                     point.z() / point.w() };
 }
 
-float Renderer::calcOrientedArea(const Vector3& p0, const Vector3& p1,
-                                 const Vector3& p2) {
-    return (p2.x() - p0.x()) * (p1.y() - p0.y()) -
-           (p2.y() - p0.y()) * (p1.x() - p0.x());
-}
-
 std::vector<Triangle> Renderer::ClipTriangle(const std::array<Vertex, 3>& vertices) {
     PlaneFunction planeLeft = [](const Vector4& v) {
         return v.x() + v.w();
@@ -135,7 +130,7 @@ std::vector<Triangle> Renderer::ClipTriangle(const std::array<Vertex, 3>& vertic
     polygon                     = ClipPolygonAgainstPlane(polygon, planeTop);
     polygon                     = ClipPolygonAgainstPlane(polygon, planeNear);
     polygon                     = ClipPolygonAgainstPlane(polygon, planeFar);
-    return TriangulatePolygon(polygon);
+    return triangulatePolygon(polygon);
 }
 
 std::vector<Vertex> Renderer::ClipPolygonAgainstPlane(
@@ -165,26 +160,5 @@ std::vector<Vertex> Renderer::ClipPolygonAgainstPlane(
         }
     }
     return polygon;
-}
-
-Vertex Renderer::calcIntersection(const Vertex& v1, const Vertex& v2, float t) {
-    return Vertex{
-        Vector4{ v1.getPosition() + t * (v2.getPosition() - v1.getPosition()) },
-        Vector4{ v1.getNormal() + t * (v2.getNormal() - v1.getNormal()) }
-    };
-}
-
-std::vector<Triangle> Renderer::TriangulatePolygon(
-    const std::vector<Vertex>& polygon) {
-    std::vector<Triangle> triangles;
-    if (polygon.size() < 3) {
-        return triangles;
-    }
-
-    for (size_t i = 1; i < polygon.size() - 1; ++i) {
-        triangles.emplace_back(polygon[0], polygon[i], polygon[i + 1]);
-    }
-
-    return triangles;
 }
 } // namespace renderer
