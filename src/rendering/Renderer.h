@@ -8,6 +8,14 @@ namespace renderer {
 class Renderer {
     using PlaneFunction = std::function<float(const Vector4&)>;
 
+    struct RenderingVertex {
+        Vector4 viewPosition;
+        Vector4 mvpPosition;
+        Vector4 normal;
+    };
+
+    using RenderingTriangle = std::array<RenderingVertex, 3>;
+
   public:
     Screen render(const World& world, const Camera& camera, Screen&& screen);
 
@@ -16,6 +24,15 @@ class Renderer {
 
     std::vector<Vertex> ClipPolygonAgainstPlane(const std::vector<Vertex>& vertices,
                                                 const PlaneFunction& plane);
+
+    std::vector<RenderingTriangle>
+    ClipRenderingTriangle(const RenderingTriangle& renderingVertices);
+
+    std::vector<RenderingTriangle>
+    triangulatePolygon(const std::vector<RenderingVertex>& polygon);
+
+    RenderingVertex calcIntersection(const RenderingVertex& v1,
+                                     const RenderingVertex& v2, float t);
 
     void rasterizeTriangle(const Triangle& triangle,
                            const AmbientLight& ambientLight,

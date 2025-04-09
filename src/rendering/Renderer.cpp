@@ -20,22 +20,51 @@ Screen Renderer::render(const World& world, const Camera& camera, Screen&& scree
     for (const Object& object : world.getObjects()) {
         Matrix4 MVP = VP * object.getModelMatrix();
         Matrix4 MV  = camera.getViewMatrix() * object.getModelMatrix();
-        for (const Triangle& triangle : object.getTriangles()) {
-            std::array<Vector4, 3> MVPpoints{};
-            std::array<Vector4, 3> MVnormals{};
-            for (int i = 0; i < 3; i++) {
-                MVPpoints[i] = MVP * triangle.getVertices()[i].getPosition();
-                MVnormals[i] = MV * triangle.getVertices()[i].getNormal();
-            }
 
-            Vertex v0 = { MVPpoints[0], MVnormals[0] };
-            Vertex v1 = { MVPpoints[1], MVnormals[1] };
-            Vertex v2 = { MVPpoints[2], MVnormals[2] };
-            for (const Triangle& clippedTriangle : ClipTriangle({ v0, v1, v2 })) {
-                rasterizeTriangle(clippedTriangle, world.getAmbientLight(),
-                                  directionalLights, screen);
-            }
+        size_t totalVertices = object.getTriangles().size() * 3;
+        Eigen::Matrix4Xf viewPositions(4, totalVertices);
+        Eigen::Matrix4Xf mvpPositions(4, totalVertices);
+        Eigen::Matrix4Xf normals(4, totalVertices);
+
+        const auto& triangles = object.getTriangles();
+        for (int i = 0; i < triangles.size(); ++i) {
+            viewPositions.col(3 * i) = triangles[i].getVertices()[0].getPosition();
+            viewPositions.col(3 * i + 1) =
+                triangles[i].getVertices()[1].getPosition();
+            viewPositions.col(3 * i + 2) =
+                triangles[i].getVertices()[2].getPosition();
+
+            mvpPositions.col(3 * i) = triangles[i].getVertices()[0].getPosition();
+            mvpPositions.col(3 * i + 1) =
+                triangles[i].getVertices()[1].getPosition();
+            mvpPositions.col(3 * i + 2) =
+                triangles[i].getVertices()[2].getPosition();
+
+            normals.col(3 * i)     = triangles[i].getVertices()[0].getNormal();
+            normals.col(3 * i + 1) = triangles[i].getVertices()[1].getNormal();
+            normals.col(3 * i + 2) = triangles[i].getVertices()[2].getNormal();
         }
+
+        viewPositions = MV * viewPositions;
+        mvpPositions  = MVP * viewPositions;
+        normals       = MV * normals;
+
+        // for (const Triangle& triangle : object.getTriangles()) {
+        //     std::array<Vector4, 3> MVPpoints{};
+        //     std::array<Vector4, 3> MVnormals{};
+        //     for (int i = 0; i < 3; i++) {
+        //         MVPpoints[i] = MVP * triangle.getVertices()[i].getPosition();
+        //         MVnormals[i] = MV * triangle.getVertices()[i].getNormal();
+        //     }
+        //
+        //     Vertex v0 = { MVPpoints[0], MVnormals[0] };
+        //     Vertex v1 = { MVPpoints[1], MVnormals[1] };
+        //     Vertex v2 = { MVPpoints[2], MVnormals[2] };
+        //     for (const Triangle& clippedTriangle : ClipTriangle({ v0, v1, v2 })) {
+        //         rasterizeTriangle(clippedTriangle, world.getAmbientLight(),
+        //                           directionalLights, screen);
+        //     }
+        // }
     }
     return screen;
 }
@@ -95,6 +124,32 @@ void Renderer::rasterizeTriangle(
     }
 }
 
+std::vector<Renderer::RenderingTriangle>
+Renderer::triangulatePolygon(const std::vector<RenderingVertex>& polygon) {
+
+    std::vector<RenderingTriangle> triangles;
+    if (polygon.size() < 3) {
+        return triangles;
+    }
+
+    for (size_t i = 1; i < polygon.size() - 1; ++i) {
+        triangles.push_back(
+            RenderingTriangle{ polygon[0], polygon[i], polygon[i + 1] });
+    }
+
+    return triangles;
+}
+
+Renderer::RenderingVertex Renderer::calcIntersection(const RenderingVertex& v1,
+                                                     const RenderingVertex& v2,
+                                                     float t) {
+
+    return RenderingVertex{ v1.viewPosition +
+                                t * (v2.viewPosition - v1.viewPosition),
+                            v1.mvpPosition + t * (v2.mvpPosition - v1.mvpPosition),
+                            v1.normal + t * (v2.normal - v1.normal) };
+}
+
 Vector3 Renderer::toNdcTransform(const Vector4& point) {
     return Vector3{ point.x() / point.w(), point.y() / point.w(),
                     point.z() / point.w() };
@@ -130,8 +185,9 @@ std::vector<Triangle> Renderer::ClipTriangle(const std::array<Vertex, 3>& vertic
     return triangulatePolygon(polygon);
 }
 
-std::vector<Vertex> Renderer::ClipPolygonAgainstPlane(
-    const std::vector<Vertex>& vertices, const PlaneFunction& plane) {
+std::vector<Vertex>
+Renderer::ClipPolygonAgainstPlane(const std::vector<Vertex>& vertices,
+                                  const PlaneFunction& plane) {
     std::vector<Vertex> polygon;
     for (size_t i = 0; i < vertices.size(); ++i) {
         const Vertex& current = vertices[i];

@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 namespace renderer {
-const Vector3 kRightVector   = { 1, 0, 0 };
+const Vector3 kRightVector = { 1, 0, 0 };
 
 Far Camera::getFar() const {
     return m_far;
