@@ -22,6 +22,17 @@ class Renderer {
                            const std::vector<DirectionalLight>& directionalLights,
                            Screen& screen);
 
+    void rasterizeTriangleWithPhong(
+        const std::array<Vector3, 3>& viewPositions,
+        const std::array<Vector3, 3>& screenPositions,
+        const std::array<Vector3, 3>& normals, const Material& material,
+        const AmbientLight& ambientLight,
+        const std::vector<DirectionalLight>& directionalLights, Screen& screen);
+
     Vector3 toNdcTransform(const Vector4& point);
+
+    Color calcPhongLighting(const AmbientLight& ambientLight,
+                            const std::vector<DirectionalLight>& directionalLights,
+                            const Vector4& normal, const Material& material);
 };
 } // namespace renderer

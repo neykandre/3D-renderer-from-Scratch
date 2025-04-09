@@ -1,20 +1,21 @@
 #pragma once
 #include "../core/Linalg.h"
+#include "Color.h"
 
 namespace renderer {
 class AmbientLight {
-    const Vector3 kDefaultAmbientIntensity{ 0.2f, 0.2f, 0.2f };
+    const Color kDefaultAmbientIntensity{ 0.2f, 0.2f, 0.2f };
 
   public:
     AmbientLight() = default;
-    explicit AmbientLight(const Vector3& intensity);
+    explicit AmbientLight(const Color& intensity);
     AmbientLight& operator=(const AmbientLight& other);
 
-    void setIntensity(const Vector3& intensity);
+    void setIntensity(const Color& intensity);
 
-    const Vector3& getIntensity() const;
+    const Color& getIntensity() const;
 
   private:
-    Vector3 m_intensity = kDefaultAmbientIntensity;
+    Color m_intensity = kDefaultAmbientIntensity;
 };
 } // namespace renderer

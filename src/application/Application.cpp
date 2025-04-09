@@ -1,21 +1,24 @@
 #include "Application.h"
 #include "../loaders/ObjLoader.h"
 
+#include <iostream>
+
 namespace renderer {
 static constexpr float kDefaultMoveSpeed   = 2.5f;
 static constexpr float kDefaultSensitivity = 0.001f;
+static constexpr std::string kDataPath     = "../../data/";
 
 Application::Application(Width width, Height height, const std::string& title)
-    : m_window(sf::VideoMode(
+    : m_screen(width, height),
+      m_window(sf::VideoMode(
                    { static_cast<unsigned>(width), static_cast<unsigned>(height) }),
                title),
       m_texture({ static_cast<unsigned>(width), static_cast<unsigned>(height) }),
-      m_sprite(m_texture),
-      m_screen(width, height),
-      m_moveSpeed(kDefaultMoveSpeed) {
+      m_sprite(m_texture) {
 
     ObjLoader objLoader;
-    auto objOpt = objLoader.load("Lowpoly_tree_sample.obj");
+    auto objOpt =
+        objLoader.load(kDataPath + "objs/Lowpoly_tree_sample.obj");
     if (objOpt.has_value()) {
         m_world.addObject(objOpt.value());
     }
@@ -23,39 +26,19 @@ Application::Application(Width width, Height height, const std::string& title)
 
 void Application::run() {
     sf::Clock clock;
-    bool isMouseHandling = false;
-
-    const auto onClose = [this](const sf::Event::Closed&) {
-        m_window.close();
-    };
-    const auto onKeyPressed =
-        [this, &isMouseHandling](const sf::Event::KeyPressed& keyPressed) {
-            if (keyPressed.scancode == sf::Keyboard::Scancode::Escape) {
-                m_window.setMouseCursorVisible(true);
-                isMouseHandling = false;
-            } else if (keyPressed.scancode == sf::Keyboard::Scancode::LShift) {
-                m_moveSpeed *= 5;
-            }
-        };
-    const auto onKeyReleased = [this](const sf::Event::KeyReleased& keyReleased) {
-        if (keyReleased.scancode == sf::Keyboard::Scancode::LShift) {
-            m_moveSpeed = kDefaultMoveSpeed;
-        }
-    };
-    const auto onMouseButtonPressed =
-        [this,
-         &isMouseHandling](const sf::Event::MouseButtonPressed& mouseButtonPressed) {
-            if (mouseButtonPressed.button == sf::Mouse::Button::Left) {
-                m_window.setMouseCursorVisible(false);
-                isMouseHandling = true;
-            }
-        };
+    bool isMouseHandling  = false;
+    float cameraMoveSpeed = kDefaultMoveSpeed;
+    int frameCount        = 0;
+    float timeAccumulator = 0.f;
+    sf::Font font;
+    sf::Text fpsText(font);
 
     while (m_window.isOpen()) {
-        m_window.handleEvents(onClose, onKeyPressed, onKeyReleased,
-                              onMouseButtonPressed);
+        handleEvents(isMouseHandling, cameraMoveSpeed);
 
-        handleKeyboardInput(clock.restart().asSeconds());
+        float dt = clock.restart().asSeconds();
+        showFps(dt, frameCount, timeAccumulator, fpsText);
+        handleKeyboardInput(dt, cameraMoveSpeed);
         if (isMouseHandling) {
             handleMouseInput();
         }
@@ -69,8 +52,40 @@ void Application::run() {
     }
 }
 
-void Application::handleKeyboardInput(float time) {
-    float distance = m_moveSpeed * time;
+void Application::handleEvents(bool& isMouseHandling, float& cameraMoveSpeed) {
+    static const auto onClose = [this](const sf::Event::Closed&) {
+        m_window.close();
+    };
+    static const auto onKeyPressed = [this, &isMouseHandling, &cameraMoveSpeed](
+                                         const sf::Event::KeyPressed& keyPressed) {
+        if (keyPressed.scancode == sf::Keyboard::Scancode::Escape) {
+            m_window.setMouseCursorVisible(true);
+            isMouseHandling = false;
+        } else if (keyPressed.scancode == sf::Keyboard::Scancode::LShift) {
+            cameraMoveSpeed *= 5;
+        }
+    };
+    static const auto onKeyReleased =
+        [this, &cameraMoveSpeed](const sf::Event::KeyReleased& keyReleased) {
+            if (keyReleased.scancode == sf::Keyboard::Scancode::LShift) {
+                cameraMoveSpeed = kDefaultMoveSpeed;
+            }
+        };
+    static const auto onMouseButtonPressed =
+        [this,
+         &isMouseHandling](const sf::Event::MouseButtonPressed& mouseButtonPressed) {
+            if (mouseButtonPressed.button == sf::Mouse::Button::Left) {
+                m_window.setMouseCursorVisible(false);
+                isMouseHandling = true;
+            }
+        };
+
+    m_window.handleEvents(onClose, onKeyPressed, onKeyReleased,
+                          onMouseButtonPressed);
+}
+
+void Application::handleKeyboardInput(float time, float cameraMoveSpeed) {
+    float distance = cameraMoveSpeed * time;
     if (isKeyPressed(sf::Keyboard::Scancode::W)) {
         m_camera.moveForward(distance);
     }
@@ -82,6 +97,12 @@ void Application::handleKeyboardInput(float time) {
     }
     if (isKeyPressed(sf::Keyboard::Scancode::D)) {
         m_camera.moveRight(distance);
+    }
+    if (isKeyPressed(sf::Keyboard::Scancode::Space)) {
+        m_camera.moveUp(distance);
+    }
+    if (isKeyPressed(sf::Keyboard::Scancode::LControl)) {
+        m_camera.moveDown(distance);
     }
 }
 
@@ -101,77 +122,19 @@ void Application::handleMouseInput() {
     sf::Mouse::setPosition(center, m_window);
 }
 
-Object Application::CreateCube() {
-    Object cube;
-
-    // Определяем границы куба
-    float left   = -0.5f;
-    float right  = 0.5f;
-    float top    = 0.3f;
-    float bottom = -0.7f;
-    float front  = -3.0f; // ближняя грань (передняя)
-    float back   = -5.0f; // дальняя грань (задняя)
-
-    // FRONT FACE (лицевая, нормаль: (0, 0, 1))
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(left, bottom, front), Eigen::Vector3f(0, 0, 1)),
-        Vertex(Eigen::Vector3f(right, bottom, front), Eigen::Vector3f(0, 0, 1)),
-        Vertex(Eigen::Vector3f(right, top, front), Eigen::Vector3f(0, 0, 1))));
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(right, top, front), Eigen::Vector3f(0, 0, 1)),
-        Vertex(Eigen::Vector3f(left, top, front), Eigen::Vector3f(0, 0, 1)),
-        Vertex(Eigen::Vector3f(left, bottom, front), Eigen::Vector3f(0, 0, 1))));
-
-    // BACK FACE (обратная, нормаль: (0, 0, -1))
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(right, bottom, back), Eigen::Vector3f(0, 0, -1)),
-        Vertex(Eigen::Vector3f(left, bottom, back), Eigen::Vector3f(0, 0, -1)),
-        Vertex(Eigen::Vector3f(left, top, back), Eigen::Vector3f(0, 0, -1))));
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(left, top, back), Eigen::Vector3f(0, 0, -1)),
-        Vertex(Eigen::Vector3f(right, top, back), Eigen::Vector3f(0, 0, -1)),
-        Vertex(Eigen::Vector3f(right, bottom, back), Eigen::Vector3f(0, 0, -1))));
-
-    // LEFT FACE (нормаль: (-1, 0, 0))
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(left, bottom, back), Eigen::Vector3f(-1, 0, 0)),
-        Vertex(Eigen::Vector3f(left, bottom, front), Eigen::Vector3f(-1, 0, 0)),
-        Vertex(Eigen::Vector3f(left, top, front), Eigen::Vector3f(-1, 0, 0))));
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(left, top, front), Eigen::Vector3f(-1, 0, 0)),
-        Vertex(Eigen::Vector3f(left, top, back), Eigen::Vector3f(-1, 0, 0)),
-        Vertex(Eigen::Vector3f(left, bottom, back), Eigen::Vector3f(-1, 0, 0))));
-
-    // RIGHT FACE (нормаль: (1, 0, 0))
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(right, bottom, front), Eigen::Vector3f(1, 0, 0)),
-        Vertex(Eigen::Vector3f(right, bottom, back), Eigen::Vector3f(1, 0, 0)),
-        Vertex(Eigen::Vector3f(right, top, back), Eigen::Vector3f(1, 0, 0))));
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(right, top, back), Eigen::Vector3f(1, 0, 0)),
-        Vertex(Eigen::Vector3f(right, top, front), Eigen::Vector3f(1, 0, 0)),
-        Vertex(Eigen::Vector3f(right, bottom, front), Eigen::Vector3f(1, 0, 0))));
-
-    // TOP FACE (нормаль: (0, 1, 0))
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(left, top, front), Eigen::Vector3f(0, 1, 0)),
-        Vertex(Eigen::Vector3f(right, top, front), Eigen::Vector3f(0, 1, 0)),
-        Vertex(Eigen::Vector3f(right, top, back), Eigen::Vector3f(0, 1, 0))));
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(right, top, back), Eigen::Vector3f(0, 1, 0)),
-        Vertex(Eigen::Vector3f(left, top, back), Eigen::Vector3f(0, 1, 0)),
-        Vertex(Eigen::Vector3f(left, top, front), Eigen::Vector3f(0, 1, 0))));
-
-    // BOTTOM FACE (нормаль: (0, -1, 0))
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(left, bottom, back), Eigen::Vector3f(0, -1, 0)),
-        Vertex(Eigen::Vector3f(right, bottom, back), Eigen::Vector3f(0, -1, 0)),
-        Vertex(Eigen::Vector3f(right, bottom, front), Eigen::Vector3f(0, -1, 0))));
-    cube.addTriangle(Triangle(
-        Vertex(Eigen::Vector3f(right, bottom, front), Eigen::Vector3f(0, -1, 0)),
-        Vertex(Eigen::Vector3f(left, bottom, front), Eigen::Vector3f(0, -1, 0)),
-        Vertex(Eigen::Vector3f(left, bottom, back), Eigen::Vector3f(0, -1, 0))));
-
-    return cube;
+void Application::showFps(float time, int& frameCount, float& timeAccumulator,
+                          sf::Text& fpsText) {
+    frameCount++;
+    timeAccumulator += time;
+    if (timeAccumulator >= 0.5f) {
+        float fps       = frameCount / timeAccumulator;
+        frameCount      = 0;
+        timeAccumulator = 0.0f;
+        std::ostringstream oss;
+        oss << "FPS: " << static_cast<int>(fps);
+        std::cerr << "FPS: " << static_cast<int>(fps) << std::endl;
+        fpsText.setString(oss.str());
+    }
 }
+
 } // namespace renderer

@@ -19,7 +19,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_subdirectory(eigen)
 add_subdirectory(SFML)
 
-add_executable(${PROJECT_NAME}
+set(SOURCES
         src/main.cpp
         src/application/Application.cpp
         src/geometry/Triangle.cpp
@@ -33,6 +33,9 @@ add_executable(${PROJECT_NAME}
         src/geometry/Vertex.cpp
         src/exceptions/Except.cpp
         src/loaders/ObjLoader.cpp
+        src/light/Material.cpp
+        src/light/Color.cpp
 )
+add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SFML::Graphics SFML::Window SFML::System eigen)

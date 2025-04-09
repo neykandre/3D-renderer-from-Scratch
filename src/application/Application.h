@@ -13,10 +13,11 @@ class Application {
     void run();
 
   private:
-    Object CreateCube();
-
-    void handleKeyboardInput(float time);
+    void handleEvents(bool& isMouseHandling, float& cameraMoveSpeed);
+    void handleKeyboardInput(float time, float cameraMoveSpeed);
     void handleMouseInput();
+    void showFps(float time, int& frameCount, float& timeAccumulator,
+                 sf::Text& fpsText);
 
     World m_world;
     Renderer m_renderer;
@@ -25,6 +26,5 @@ class Application {
     sf::RenderWindow m_window;
     sf::Texture m_texture;
     sf::Sprite m_sprite;
-    float m_moveSpeed;
 };
 } // namespace renderer

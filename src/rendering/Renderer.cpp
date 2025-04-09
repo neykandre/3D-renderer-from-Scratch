@@ -21,16 +21,16 @@ Screen Renderer::render(const World& world, const Camera& camera, Screen&& scree
         Matrix4 MVP = VP * object.getModelMatrix();
         Matrix4 MV  = camera.getViewMatrix() * object.getModelMatrix();
         for (const Triangle& triangle : object.getTriangles()) {
-            std::array<Vector4, 3> points{};
-            std::array<Vector4, 3> normals{};
+            std::array<Vector4, 3> MVPpoints{};
+            std::array<Vector4, 3> MVnormals{};
             for (int i = 0; i < 3; i++) {
-                points[i]  = MVP * triangle.getVertices()[i].getPosition();
-                normals[i] = MV * triangle.getVertices()[i].getNormal();
+                MVPpoints[i] = MVP * triangle.getVertices()[i].getPosition();
+                MVnormals[i] = MV * triangle.getVertices()[i].getNormal();
             }
 
-            Vertex v0 = { points[0], normals[0] };
-            Vertex v1 = { points[1], normals[1] };
-            Vertex v2 = { points[2], normals[2] };
+            Vertex v0 = { MVPpoints[0], MVnormals[0] };
+            Vertex v1 = { MVPpoints[1], MVnormals[1] };
+            Vertex v2 = { MVPpoints[2], MVnormals[2] };
             for (const Triangle& clippedTriangle : ClipTriangle({ v0, v1, v2 })) {
                 rasterizeTriangle(clippedTriangle, world.getAmbientLight(),
                                   directionalLights, screen);
@@ -83,12 +83,9 @@ void Renderer::rasterizeTriangle(
                 float z = alpha * p0.z() + beta * p1.z() + gamma * p2.z();
                 if (z < screen.getZBufferElem(x, y)) {
                     if (alpha < 0.01f || beta < 0.01f || gamma < 0.01f) {
-                        sf::Color color; // TODO Phong
-                        color.r = ambientLight.getIntensity().x() * 255;
-                        color.g = ambientLight.getIntensity().y() * 255;
-                        color.b = ambientLight.getIntensity().z() * 255;
-                        color.a = 255;
-                        screen.setPixel(x, y, z, color);
+                        screen.setPixel(x, y, z,
+                                        ambientLight.getIntensity()
+                                            .convertToSfColor()); // TODO Phong
                     } else {
                         screen.setPixel(x, y, z, sf::Color::Black);
                     }

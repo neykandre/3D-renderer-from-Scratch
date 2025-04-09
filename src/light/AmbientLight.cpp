@@ -1,7 +1,7 @@
 #include "AmbientLight.h"
 
 namespace renderer {
-AmbientLight::AmbientLight(const Vector3& intensity)
+AmbientLight::AmbientLight(const Color& intensity)
     : m_intensity(intensity) {
 }
 
@@ -10,11 +10,11 @@ AmbientLight& AmbientLight::operator=(const AmbientLight& other) {
     return *this;
 }
 
-void AmbientLight::setIntensity(const Vector3& intensity) {
+void AmbientLight::setIntensity(const Color& intensity) {
     m_intensity = intensity;
 }
 
-const Vector3& AmbientLight::getIntensity() const {
+const Color& AmbientLight::getIntensity() const {
     return m_intensity;
 }
 } // namespace renderer

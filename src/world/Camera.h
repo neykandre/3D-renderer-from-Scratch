@@ -11,15 +11,19 @@ class Camera {
   public:
     Camera() = default;
 
+    Vector3 getGlobalUpVector() const;
+
     Near getNear() const;
     Far getFar() const;
     Fov getFov() const;
-    Matrix4 getViewMatrix() const;
+    const Matrix4& getViewMatrix() const;
 
     void moveForward(float distance);
     void moveBack(float distance);
     void moveRight(float distance);
     void moveLeft(float distance);
+    void moveUp(float distance);
+    void moveDown(float distance);
     void rotateHorizontal(float angle);
     void rotateVertical(float angle);
 

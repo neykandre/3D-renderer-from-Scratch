@@ -1,13 +1,13 @@
 #include "DirectionalLight.h"
 
 namespace renderer {
-DirectionalLight::DirectionalLight(const Vector3& intensity,
+DirectionalLight::DirectionalLight(const Color& intensity,
                                    const Vector4& direction)
     : m_intensity(intensity) {
     setDirection(direction);
 }
 
-void DirectionalLight::setIntensity(const Vector3& intensity) {
+void DirectionalLight::setIntensity(const Color& intensity) {
     m_intensity = intensity;
 }
 
@@ -15,7 +15,7 @@ void DirectionalLight::setDirection(const Vector4& direction) {
     m_direction = direction.normalized();
 }
 
-const Vector3& DirectionalLight::getIntensity() const {
+const Color& DirectionalLight::getIntensity() const {
     return m_intensity;
 }
 
