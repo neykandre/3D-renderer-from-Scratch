@@ -1,8 +1,6 @@
 #include "Application.h"
 #include "../loaders/ObjLoader.h"
 
-#include <iostream>
-
 namespace renderer {
 static constexpr float kDefaultMoveSpeed   = 2.5f;
 static constexpr float kDefaultSensitivity = 0.001f;
@@ -17,8 +15,7 @@ Application::Application(Width width, Height height, const std::string& title)
       m_sprite(m_texture) {
 
     ObjLoader objLoader;
-    auto objOpt =
-        objLoader.load(kDataPath + "objs/uploads_files_4931206_TrialFreya_OBJ.obj");
+    auto objOpt = objLoader.load(kDataPath + "objs/12140_Skull_v3_L2.obj");
     if (objOpt.has_value()) {
         auto obj = objOpt.value();
         obj.setModelMatrix(makeRotationMatrix({ -1, 0, 0 }, 1.5f));
@@ -137,7 +134,6 @@ void Application::showFps(float time, int& frameCount, float& timeAccumulator,
         timeAccumulator = 0.0f;
         std::ostringstream oss;
         oss << "FPS: " << static_cast<int>(fps);
-        std::cerr << "FPS: " << static_cast<int>(fps) << std::endl;
         fpsText.setString(oss.str());
     }
 }

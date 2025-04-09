@@ -1,8 +1,7 @@
 #include "Renderer.h"
+#include "../core/Linalg.h"
 #include "../core/Utils.h"
 #include "Screen.h"
-
-#include <iostream>
 
 namespace renderer {
 Screen Renderer::render(const World& world, const Camera& camera, Screen&& screen) {
@@ -24,13 +23,9 @@ Screen Renderer::render(const World& world, const Camera& camera, Screen&& scree
         Matrix4 MV  = camera.getViewMatrix() * object.getModelMatrix();
 
         size_t totalVertices = object.getTriangles().size() * 3;
-        Eigen::Matrix4Xf viewPositions;
-        Eigen::Matrix4Xf mvpPositions;
-        Eigen::Matrix4Xf normals;
-
-        viewPositions.resize(4, totalVertices);
-        mvpPositions.resize(4, totalVertices);
-        normals.resize(4, totalVertices);
+        Matrix4Xn viewPositions(4, totalVertices);
+        Matrix4Xn mvpPositions(4, totalVertices);
+        Matrix4Xn normals(4, totalVertices);
 
         const auto& triangles = object.getTriangles();
         for (int i = 0; i < triangles.size(); ++i) {
@@ -64,12 +59,9 @@ Screen Renderer::render(const World& world, const Camera& camera, Screen&& scree
                                 normals.col(3 * i + j) };
             }
             auto currentClippedTriangles = clipRenderingTriangle(triangle);
-            for (const auto& clippedTriangle : currentClippedTriangles) {
-                clippedTriangles.push_back(clippedTriangle);
-            }
-            // clippedTriangles.insert(clippedTriangles.end(),
-            //                         currentClippedTriangles.begin(),
-            //                         currentClippedTriangles.end());
+            clippedTriangles.insert(clippedTriangles.end(),
+                                    currentClippedTriangles.begin(),
+                                    currentClippedTriangles.end());
         }
 
         for (const RenderingTriangle& clippedTriangle : clippedTriangles) {
