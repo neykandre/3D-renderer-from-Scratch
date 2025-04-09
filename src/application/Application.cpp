@@ -18,10 +18,15 @@ Application::Application(Width width, Height height, const std::string& title)
 
     ObjLoader objLoader;
     auto objOpt =
-        objLoader.load(kDataPath + "objs/Lowpoly_tree_sample.obj");
+        objLoader.load(kDataPath + "objs/uploads_files_4931206_TrialFreya_OBJ.obj");
     if (objOpt.has_value()) {
-        m_world.addObject(objOpt.value());
+        auto obj = objOpt.value();
+        obj.setModelMatrix(makeRotationMatrix({ -1, 0, 0 }, 1.5f));
+        m_world.addObject(obj);
     }
+
+    m_world.addDirectionalLight(
+        { Color{ .7f, .7f, .7f }, Vector4{ -1, -1, -1, 0 } });
 }
 
 void Application::run() {

@@ -96,7 +96,7 @@ std::optional<Object> ObjLoader::load(const std::string& filename) {
                 triangles.emplace_back(faceVertices[0], faceVertices[1],
                                        faceVertices[2]);
             } else {
-                triangles = triangulatePolygon(faceVertices);
+                triangles = triangulatePolygon<Triangle, Vertex>(faceVertices);
             }
             for (const auto& tri : triangles) {
                 obj.addTriangle(tri);

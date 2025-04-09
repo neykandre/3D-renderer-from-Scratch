@@ -20,36 +20,33 @@ class Renderer {
     Screen render(const World& world, const Camera& camera, Screen&& screen);
 
   private:
-    std::vector<Triangle> ClipTriangle(const std::array<Vertex, 3>& vertices);
-
-    std::vector<Vertex> ClipPolygonAgainstPlane(const std::vector<Vertex>& vertices,
-                                                const PlaneFunction& plane);
-
     std::vector<RenderingTriangle>
-    ClipRenderingTriangle(const RenderingTriangle& renderingVertices);
+    clipRenderingTriangle(const RenderingTriangle& triangle);
 
-    std::vector<RenderingTriangle>
-    triangulatePolygon(const std::vector<RenderingVertex>& polygon);
+    std::vector<RenderingVertex>
+    clipPolygonAgainstPlane(const std::vector<RenderingVertex>& vertices,
+                            const PlaneFunction& plane);
 
     RenderingVertex calcIntersection(const RenderingVertex& v1,
                                      const RenderingVertex& v2, float t);
 
-    void rasterizeTriangle(const Triangle& triangle,
-                           const AmbientLight& ambientLight,
-                           const std::vector<DirectionalLight>& directionalLights,
-                           Screen& screen);
-
     void rasterizeTriangleWithPhong(
-        const std::array<Vector3, 3>& viewPositions,
-        const std::array<Vector3, 3>& screenPositions,
-        const std::array<Vector3, 3>& normals, const Material& material,
+        const RenderingTriangle& renderingTriangle, const Material& material,
         const AmbientLight& ambientLight,
         const std::vector<DirectionalLight>& directionalLights, Screen& screen);
 
-    Vector3 toNdcTransform(const Vector4& point);
+    Color
+    calcBlinnPhongPixelColor(const Vector3& normal, const Vector3& view,
+                             const Material& material,
+                             const std::vector<DirectionalLight>& directionalLights,
+                             const AmbientLight& ambientLight);
 
-    Color calcPhongLighting(const AmbientLight& ambientLight,
-                            const std::vector<DirectionalLight>& directionalLights,
-                            const Vector4& normal, const Material& material);
+    template <typename T>
+    constexpr inline T interpolate(float alpha, float beta, float gamma, const T& t1,
+                                   const T& t2, const T& t3) {
+        return alpha * t1 + beta * t2 + gamma * t3;
+    }
+
+    Vector3 toNdcTransform(const Vector4& point);
 };
 } // namespace renderer
