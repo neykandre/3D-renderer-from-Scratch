@@ -3,15 +3,16 @@
 
 namespace renderer {
 class Material {
-    static constexpr Color kDefaultAmbient   = { 0.2f, 0.2f, 0.2f };
-    static constexpr Color kDefaultDiffuse   = { 0.8f, 0.8f, 0.8f };
-    static constexpr Color kDefaultSpecular  = { 1.f, 1.f, 1.f };
-    static constexpr float kDefaultShininess = 32.0f;
+    const Color kDefaultAmbient   = { 0.2f, 0.2f, 0.2f };
+    const Color kDefaultDiffuse   = { 0.8f, 0.8f, 0.8f };
+    const Color kDefaultSpecular  = { 1.f, 1.f, 1.f };
+    const float kDefaultShininess = 32.0f;
 
   public:
     Material() = default;
     Material(const Color& ambient, const Color& diffuse, const Color& specular,
              float shininess);
+    Material& operator=(const Material& other);
 
     const Color& getAmbient() const;
     const Color& getDiffuse() const;

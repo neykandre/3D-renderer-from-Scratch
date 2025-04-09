@@ -1,9 +1,7 @@
 #include "Camera.h"
 
 namespace renderer {
-const Vector3 kForwardVector = { 0, 0, -1 };
 const Vector3 kRightVector   = { 1, 0, 0 };
-const Vector3 kVerticalAxis  = { -1, 0, 0 };
 
 Far Camera::getFar() const {
     return m_far;
@@ -25,8 +23,12 @@ Vector3 Camera::getGlobalUpVector() const {
     return m_viewMatrix.block<3, 1>(0, 1);
 }
 
+Vector3 Camera::calcForwardVector() const {
+    return getGlobalUpVector().cross(kRightVector).normalized();
+}
+
 void Camera::moveForward(float distance) {
-    Vector3 shift = kForwardVector * distance;
+    Vector3 shift = calcForwardVector() * distance;
     m_viewMatrix  = makeTranslationMatrix(-shift) * m_viewMatrix;
 }
 
@@ -57,7 +59,7 @@ void Camera::rotateHorizontal(float angle) {
 }
 
 void Camera::rotateVertical(float angle) {
-    m_viewMatrix = makeRotationMatrix(kVerticalAxis, -angle) * m_viewMatrix;
+    m_viewMatrix = makeRotationMatrix(kRightVector, angle) * m_viewMatrix;
 }
 
 } // namespace renderer

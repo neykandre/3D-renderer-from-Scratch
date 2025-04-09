@@ -9,6 +9,14 @@ Material::Material(const Color& ambient, const Color& diffuse, const Color& spec
       m_shininess(shininess) {
 }
 
+Material& Material::operator=(const Material& other) {
+    m_ambient   = other.m_ambient;
+    m_diffuse   = other.m_diffuse;
+    m_specular  = other.m_specular;
+    m_shininess = other.m_shininess;
+    return *this;
+}
+
 const Color& Material::getAmbient() const {
     return m_ambient;
 }

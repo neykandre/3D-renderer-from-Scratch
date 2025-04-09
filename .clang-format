@@ -9,11 +9,11 @@ IndentWidth: 4
 TabWidth: 4
 UseTab: Never
 InsertBraces: true
-PointerAlignment: Left 
+PointerAlignment: Left
 AlwaysBreakTemplateDeclarations: Yes
 PackConstructorInitializers: Never
 Cpp11BracedListStyle: false
 AllowShortLambdasOnASingleLine: None
 AllowShortFunctionsOnASingleLine: None
 AllowShortEnumsOnASingleLine: false
-PenaltyReturnTypeOnItsOwnLine: 1000000
+InsertNewlineAtEOF: true

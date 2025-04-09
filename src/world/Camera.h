@@ -12,6 +12,7 @@ class Camera {
     Camera() = default;
 
     Vector3 getGlobalUpVector() const;
+    Vector3 calcForwardVector() const;
 
     Near getNear() const;
     Far getFar() const;
