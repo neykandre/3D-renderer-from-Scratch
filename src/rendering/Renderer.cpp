@@ -5,7 +5,7 @@
 
 namespace renderer {
 Screen Renderer::render(const World& world, const Camera& camera, Screen&& screen) {
-    screen.fillWithColor(sf::Color::Black);
+    screen.fillBuffer(0);
 
     std::vector<DirectionalLight> directionalLights;
     for (const DirectionalLight& light : world.getDirectionalLights()) {

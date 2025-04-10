@@ -1,10 +1,11 @@
 #include "Application.h"
 #include "../loaders/ObjLoader.h"
 
+#include <iostream>
+
 namespace renderer {
 static constexpr float kDefaultMoveSpeed   = 2.5f;
 static constexpr float kDefaultSensitivity = 0.001f;
-static constexpr std::string kDataPath     = "../../data/";
 
 Application::Application(Width width, Height height, const std::string& title)
     : m_screen(width, height),
@@ -12,34 +13,69 @@ Application::Application(Width width, Height height, const std::string& title)
                    { static_cast<unsigned>(width), static_cast<unsigned>(height) }),
                title),
       m_texture({ static_cast<unsigned>(width), static_cast<unsigned>(height) }),
-      m_sprite(m_texture) {
+      m_sprite(m_texture),
+      m_console(m_queue) {
 
-    ObjLoader objLoader;
-    auto objOpt = objLoader.load(kDataPath + "objs/12140_Skull_v3_L2.obj");
-    if (objOpt.has_value()) {
-        auto obj = objOpt.value();
-        obj.setModelMatrix(makeRotationMatrix({ -1, 0, 0 }, 1.5f));
-        m_world.addObject(obj);
+    m_consoleThread = std::thread(&ConsoleInterface::run, &m_console);
+}
+
+Application::~Application() {
+    if (m_consoleThread.joinable()) {
+        m_consoleThread.join();
     }
+}
 
-    m_world.addDirectionalLight(
-        { Color{ .7f, .7f, .7f }, Vector4{ -1, -1, -1, 0 } });
+void Application::processCommands() {
+    Command cmd;
+    while (m_queue.dequeue(cmd)) {
+        switch (cmd.type) {
+        case CmdType::LoadObject: {
+            ObjLoader L;
+            if (auto o = L.load(cmd.path)) {
+                auto obj = *o;
+                if (cmd.applyTransform) {
+                    Vector3 rotVector   = { cmd.rotAxis.x, cmd.rotAxis.y,
+                                            cmd.rotAxis.z };
+                    Vector3 transVector = { cmd.translation.x, cmd.translation.y,
+                                            cmd.translation.z };
+                    obj.setModelMatrix(makeRotationMatrix(rotVector, cmd.rotAngle) *
+                                       makeTranslationMatrix(transVector));
+                }
+                m_world.addObject(obj);
+                std::cout << "Object was loaded successfully." << std::endl;
+
+            } else {
+                std::cerr << "File was not opened." << std::endl;
+            }
+            break;
+        }
+        case CmdType::AddLight: {
+            Color intensity = { cmd.lightColor.x, cmd.lightColor.y,
+                                cmd.lightColor.z };
+            m_world.addDirectionalLight(
+                { intensity,
+                  { cmd.lightDir.x, cmd.lightDir.y, cmd.lightDir.z, 0 } });
+            std::cout << "Light was added successfully." << std::endl;
+            break;
+        }
+        case CmdType::Exit: {
+            m_window.close();
+            break;
+        }
+        }
+    }
 }
 
 void Application::run() {
     sf::Clock clock;
     bool isMouseHandling  = false;
     float cameraMoveSpeed = kDefaultMoveSpeed;
-    int frameCount        = 0;
-    float timeAccumulator = 0.f;
-    sf::Font font;
-    sf::Text fpsText(font);
 
     while (m_window.isOpen()) {
         handleEvents(isMouseHandling, cameraMoveSpeed);
+        processCommands();
 
         float dt = clock.restart().asSeconds();
-        showFps(dt, frameCount, timeAccumulator, fpsText);
         handleKeyboardInput(dt, cameraMoveSpeed);
         if (isMouseHandling) {
             handleMouseInput();
@@ -113,28 +149,12 @@ void Application::handleMouseInput() {
     sf::Vector2i center{ static_cast<int>(m_window.getSize().x / 2),
                          static_cast<int>(m_window.getSize().y / 2) };
     sf::Vector2i delta = mouseCurrentPos - center;
-
+    sf::Mouse::setPosition(center, m_window);
     if (delta.x != 0) {
         m_camera.rotateHorizontal(delta.x * kDefaultSensitivity);
     }
     if (delta.y != 0) {
         m_camera.rotateVertical(delta.y * kDefaultSensitivity);
-    }
-
-    sf::Mouse::setPosition(center, m_window);
-}
-
-void Application::showFps(float time, int& frameCount, float& timeAccumulator,
-                          sf::Text& fpsText) {
-    frameCount++;
-    timeAccumulator += time;
-    if (timeAccumulator >= 0.5f) {
-        float fps       = frameCount / timeAccumulator;
-        frameCount      = 0;
-        timeAccumulator = 0.0f;
-        std::ostringstream oss;
-        oss << "FPS: " << static_cast<int>(fps);
-        fpsText.setString(oss.str());
     }
 }
 

@@ -8,20 +8,12 @@ Screen::Screen(Width width, Height height)
       m_zBuffer(width * height) {
 }
 
-void Screen::fillWithColor(const sf::Color& fillColor) {
-    for (int y = 0; y < m_height; ++y) {
-        for (int x = 0; x < m_width; ++x) {
-            setPixel(x, y, 0, fillColor);
-        }
-    }
+void Screen::fillBuffer(std::uint8_t fillValue) {
+    std::ranges::fill(m_colorBuffer, fillValue);
     std::ranges::fill(m_zBuffer, 1.0f);
 }
 
 void Screen::setPixel(int x, int y, float depth, const sf::Color& color) {
-    if (depth > getZBufferElem(x, y)) {
-        return;
-    }
-
     getColorBufferElem(x, y, 0) = color.r;
     getColorBufferElem(x, y, 1) = color.g;
     getColorBufferElem(x, y, 2) = color.b;

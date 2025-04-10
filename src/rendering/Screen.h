@@ -12,7 +12,7 @@ class Screen {
   public:
     Screen(Width width, Height height);
 
-    void fillWithColor(const sf::Color& fillColor);
+    void fillBuffer(std::uint8_t fillValue);
     void setPixel(int x, int y, float depth, const sf::Color& color);
 
     Width getWidth() const;

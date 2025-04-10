@@ -5,8 +5,8 @@ namespace renderer {
 class Material {
     const Color kDefaultAmbient   = { 0.2f, 0.2f, 0.2f };
     const Color kDefaultDiffuse   = { 0.8f, 0.8f, 0.8f };
-    const Color kDefaultSpecular  = { 1.f, 1.f, 1.f };
-    const float kDefaultShininess = 32.0f;
+    const Color kDefaultSpecular  = { 0.5f, 0.5f, 0.5f };
+    const float kDefaultShininess = 16.0f;
 
   public:
     Material() = default;

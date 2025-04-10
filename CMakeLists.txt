@@ -35,6 +35,7 @@ set(SOURCES
         src/loaders/ObjLoader.cpp
         src/light/Material.cpp
         src/light/Color.cpp
+        src/ui/ConsoleInterface.cpp
 )
 add_executable(${PROJECT_NAME} ${SOURCES})
 

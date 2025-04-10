@@ -76,7 +76,7 @@ std::optional<Object> ObjLoader::load(const std::string& filename) {
             std::vector<Vertex> faceVertices;
             for (const auto& [vIndex, vtIndex, vnIndex] : faceIndices) {
                 if (vIndex < 0 || static_cast<size_t>(vIndex) >= positions.size()) {
-                    std::cerr << "Invalid vertex index: " << vIndex + 1 << "\n";
+                    std::cerr << "Parsing error" << std::endl;
                     continue;
                 }
                 Vector4 pos = positions[vIndex];
