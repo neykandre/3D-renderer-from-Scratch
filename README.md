@@ -6,7 +6,7 @@ Software 3D-renderer с нуля
 
 Для установки программы необходимо склонировать репозиторий и собрать проект.
 
-1. Клонирование репозиотрия
+1. Клонирование репозитория
 
 ```bash
 git clone https://github.com/neykandre/3D-renderer-from-Scratch.git
